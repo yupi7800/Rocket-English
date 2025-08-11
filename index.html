@@ -1,13 +1,172 @@
-html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>RocketEnglish</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="app.js" defer></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RocketEnglish 🚀</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f9f9f9;
+  }
+  .screen {
+    display: none;
+    padding: 20px;
+  }
+  .active {
+    display: block;
+  }
+  header {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  .lesson-card, .task-item, .bonus-story, .progress-card {
+    background: white;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    background: white;
+    padding: 10px 0;
+    border-top: 1px solid #ddd;
+  }
+  .nav button {
+    background: none;
+    border: none;
+    font-size: 1.2em;
+  }
+  .task-list input {
+    margin-right: 8px;
+  }
+  .progress-circle {
+    font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+    margin: 20px 0;
+  }
+  button.action-btn {
+    background: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+  }
+  button.action-btn:hover {
+    background: #45a049;
+  }
+</style>
 </head>
 <body>
-    <div id="lock-screen">
-        <h1>🔒 Password Required</h1>
-        <input type="password" id="password" placeholder="Enter password">
-        <button onclick="checkPassword()">Unlock</button>
-        <p id="
+
+<!-- Home Screen -->
+<div id="home" class="screen active">
+  <header>RocketEnglish 🚀</header>
+  <div class="lesson-card">
+    <p>Can you practice speaking out loud today?</p>
+    <h3>Today's Lesson</h3>
+    <p>Get to the cafe - 20 min</p>
+  </div>
+  <div class="bonus-story">
+    <h4>Bonus Story</h4>
+    <p>📖 A Day at the Farmers Market</p>
+  </div>
+  <div class="task-list">
+    <h4>Today's Task</h4>
+    <div class="task-item"><input type="checkbox" id="task1">Review vocab</div>
+    <div class="task-item"><input type="checkbox" id="task2">Practice phrases</div>
+  </div>
+</div>
+
+<!-- Lesson Screen -->
+<div id="lesson" class="screen">
+  <header>Lesson</header>
+  <div class="lesson-card" id="lessonText">I'd like a coffee, please.</div>
+  <button class="action-btn" onclick="playAudio()">▶ Play Sentence</button>
+  <div class="lesson-card">Warm-up: Remember yesterday's phrases</div>
+  <div class="lesson-card">🎤 Speaking Practice: Speak the sentence</div>
+  <div class="lesson-card">🔄 Cool-down Review: Review today's phrases</div>
+</div>
+
+<!-- Progress Screen -->
+<div id="progress" class="screen">
+  <header>Progress</header>
+  <div class="progress-card">
+    📈 Vocabulary Progress
+    <div class="progress-circle" id="vocabProgress">80%</div>
+    Speaking: <span id="speakingScore">75</span>
+  </div>
+  <div class="progress-card">
+    🏆 Achievements
+    <p>🎖 ⭐ 🚀</p>
+  </div>
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+  <button onclick="showScreen('home')">🏠</button>
+  <button onclick="showScreen('lesson')">📚</button>
+  <button onclick="showScreen('progress')">📊</button>
+</div>
+
+<script>
+  // 画面切り替え
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    saveProgress();
+  }
+
+  // 音声再生
+  function playAudio() {
+    const text = document.getElementById('lessonText').innerText;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'en-US';
+    speechSynthesis.speak(utter);
+  }
+
+  // 進捗保存
+  function saveProgress() {
+    const progress = {
+      task1: document.getElementById('task1').checked,
+      task2: document.getElementById('task2').checked
+    };
+    localStorage.setItem('rocketProgress', JSON.stringify(progress));
+    updateProgressUI();
+  }
+
+  // UI更新
+  function updateProgressUI() {
+    const saved = JSON.parse(localStorage.getItem('rocketProgress')) || {};
+    document.getElementById('task1').checked = saved.task1 || false;
+    document.getElementById('task2').checked = saved.task2 || false;
+
+    let completed = 0;
+    if (saved.task1) completed++;
+    if (saved.task2) completed++;
+
+    document.getElementById('vocabProgress').innerText = `${completed * 50}%`;
+    document.getElementById('speakingScore').innerText = 75 + completed * 5;
+  }
+
+  // 起動時にロード
+  window.onload = updateProgressUI;
+
+  // チェックボックス変更時に保存
+  document.getElementById('task1').addEventListener('change', saveProgress);
+  document.getElementById('task2').addEventListener('change', saveProgress);
+</script>
+
+</body>
+</html>
